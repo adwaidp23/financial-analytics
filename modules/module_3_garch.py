@@ -35,11 +35,11 @@ def run_garch_model(df):
         scale_factor = res.scale if hasattr(res, 'scale') and res.scale is not None else 1.0
         cond_vol = (res.conditional_volatility / scale_factor / 100) * np.sqrt(252)
         
-        omega = res.params.get('omega', 0.0)
-        alpha = res.params.get('alpha[1]', 0.0)
-        beta = res.params.get('beta[1]', 0.0)
+        omega = float(res.params.get('omega', 0.0))
+        alpha = float(res.params.get('alpha[1]', 0.0))
+        beta = float(res.params.get('beta[1]', 0.0))
         persistence = alpha + beta
-        is_stationary = persistence < 1.0
+        is_stationary = bool(persistence < 1.0)
         
         return cond_vol, omega, alpha, beta, is_stationary
     except Exception as e:
