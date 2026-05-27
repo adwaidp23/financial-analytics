@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+import yfinance as yf
 from modules.module_2_arima import run_arima_model
 from modules.module_4_dcf import fetch_cash_flow
 from modules.module_7_credit_risk import generate_and_train_pd_model, fetch_financial_ratios
@@ -92,6 +93,26 @@ def render_module_1(df, selected_ticker, port_returns):
         pd_prob = 0.02 # fallback PD
     
     st.markdown("##### Key Risk Metrics")
+    
+    # Compute Beta, Jensen's Alpha, R² via NIFTY50 regression
+    try:
+        nifty = yf.download("^NSEI", start=df.index[0], end=df.index[-1], progress=False)
+        if isinstance(nifty.columns, pd.MultiIndex):
+            nifty.columns = nifty.columns.get_level_values(0)
+        nifty_ret = np.log(nifty["Close"] / nifty["Close"].shift(1)).dropna()
+        aligned = pd.concat([returns, nifty_ret], axis=1).dropna()
+        aligned.columns = ["stock", "market"]
+        cov_matrix = np.cov(aligned["stock"], aligned["market"])
+        beta = cov_matrix[0, 1] / cov_matrix[1, 1]
+        rfr_daily = 0.065 / 252  # 6.5% annual risk-free rate
+        alpha = (aligned["stock"].mean() - rfr_daily) - beta * (aligned["market"].mean() - rfr_daily)
+        alpha_annual = alpha * 252
+        ss_res = np.sum((aligned["stock"] - (alpha + beta * aligned["market"])) ** 2)
+        ss_tot = np.sum((aligned["stock"] - aligned["stock"].mean()) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
+    except Exception:
+        beta, alpha_annual, r_squared = 1.0, 0.0, 0.0
+    
     m1, m2, m3, m4, m5, m6 = st.columns(6)
     m1.metric("Expected Return (1Y)", f"{exp_return_1y*100:.1f}%")
     m2.metric("Portfolio Return", f"{port_ret*100:.1f}%")
@@ -99,6 +120,11 @@ def render_module_1(df, selected_ticker, port_returns):
     m4.metric("VaR 95% (1-Day)", f"{var_95_pct*100:.2f}%")
     m5.metric("Prob of Default (PD)", f"{pd_prob*100:.2f}%")
     m6.metric("Sharpe Ratio", f"{port_sharpe:.2f}")
+    
+    m7, m8, m9 = st.columns(3)
+    m7.metric("Beta (vs NIFTY50)", f"{beta:.3f}")
+    m8.metric("Jensen's Alpha (Ann.)", f"{alpha_annual*100:.2f}%")
+    m9.metric("R² (Market Fit)", f"{r_squared:.3f}")
     
     # 1c: Investment Signal Logic
     var_pct_val = var_95_pct * 100
