@@ -8,6 +8,15 @@ import yfinance as yf
 
 @st.cache_data(show_spinner=False)
 def generate_and_train_pd_model():
+    """Generates synthetic corporate data and trains a Logistic Regression credit risk model.
+
+    Returns:
+        tuple: A tuple containing:
+            - model (LogisticRegression): The trained model.
+            - auc (float): AUC-ROC score.
+            - acc (float): Accuracy score.
+            - cm (np.ndarray): Confusion matrix.
+    """
     np.random.seed(42)
     N = 500
     
@@ -49,6 +58,14 @@ def generate_and_train_pd_model():
 
 @st.cache_data(show_spinner=False)
 def fetch_financial_ratios(ticker):
+    """Fetches key financial ratios for a given stock ticker, falling back to industry averages if unavailable.
+
+    Args:
+        ticker (str): The stock ticker (e.g., 'RELIANCE.NS').
+
+    Returns:
+        pd.DataFrame: A single-row DataFrame containing the credit risk model features.
+    """
     # High-quality industry averages for the 5 NSE tickers to guard against empty API returns
     DEFAULT_RATIOS = {
         'RELIANCE.NS': {'DebtToEquity': 0.40, 'InterestCoverage': 6.5, 'CurrentRatio': 1.25, 'ROE': 0.09, 'NetProfitMargin': 0.08},
@@ -92,6 +109,11 @@ def fetch_financial_ratios(ticker):
     })
 
 def render_module_7(ticker):
+    """Renders the Credit Risk Modeling (PD) dashboard page in Streamlit.
+
+    Args:
+        ticker (str): The selected stock ticker.
+    """
     st.subheader("Module 7: Credit Risk Modeling (PD)")
     
     model, auc, acc, cm = generate_and_train_pd_model()
