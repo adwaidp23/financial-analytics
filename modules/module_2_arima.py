@@ -12,7 +12,23 @@ from statsmodels.tsa.arima.model import ARIMA as StatsARIMA
 
 @st.cache_data(show_spinner=False)
 def run_arima_model(df):
-    """Runs Auto-ARIMA and generates forecasts and metrics."""
+    """Runs Auto-ARIMA and generates forecasts and model performance metrics.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock price data with at least a 'Close' column.
+
+    Returns:
+        tuple: A tuple containing:
+            - forecast_df (pd.DataFrame): 90-day forecast prices and confidence intervals.
+            - order (tuple): ARIMA model order (p, d, q).
+            - aic (float): Akaike Information Criterion.
+            - bic (float): Bayesian Information Criterion.
+            - in_sample_rmse (float): Root Mean Squared Error on train data.
+            - out_sample_rmse (float): Root Mean Squared Error on test data (walk-forward).
+            - mae (float): Mean Absolute Error on train data.
+            - mape (float): Mean Absolute Percentage Error on train data.
+            - direction (str): Forecasted direction ('Uptrend' or 'Downtrend').
+    """
     prices = df['Close'].dropna()
     
     # 1. Fit auto_arima on full data with restricted search space for high speed
@@ -92,6 +108,7 @@ def run_arima_model(df):
         
     out_sample_rmse = np.sqrt(mean_squared_error(test, wf_preds))
     
+    # mae/mape metrics
     mae = mean_absolute_error(prices, in_sample_preds)
     mape = mean_absolute_percentage_error(prices, in_sample_preds) * 100
     
@@ -100,6 +117,11 @@ def run_arima_model(df):
     return forecast_df, order, aic, bic, in_sample_rmse, out_sample_rmse, mae, mape, direction
 
 def render_module_2(df):
+    """Renders the ARIMA Forecasting dashboard page in Streamlit.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock price data with at least 'Close' and 'Log_Return' columns.
+    """
     st.subheader("Module 2: ARIMA Forecasting")
     
     if len(df) < 100:
@@ -136,9 +158,6 @@ def render_module_2(df):
     cols[3].metric("Direction (90-day)", direction)
     
     st.markdown("<br>**Walk-Forward Validation (80/20 Split)**", unsafe_allow_html=True)
-    wf_df = pd.DataFrame({
-        "Metric": ["RMSE"],
-        "In-Sample (80%)": [f"{in_rmse:.2f}"],
-        "Out-of-Sample (20%)": [f"{out_rmse:.2f}"]
-    })
-    st.dataframe(wf_df, hide_index=True)
+    wf_cols = st.columns(2)
+    wf_cols[0].metric("In-Sample RMSE (80% Train)", f"{in_rmse:.2f}")
+    wf_cols[1].metric("Out-of-Sample RMSE (20% Test)", f"{out_rmse:.2f}")
