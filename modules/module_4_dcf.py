@@ -2,9 +2,21 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 import plotly.graph_objects as go
+import numpy as np
 
 @st.cache_data(show_spinner=False)
 def fetch_cash_flow(ticker):
+    """Fetches Free Cash Flow or Operating Cash Flow, current price, and shares outstanding for a ticker.
+
+    Args:
+        ticker (str): The stock ticker (e.g., 'RELIANCE.NS').
+
+    Returns:
+        tuple: A tuple containing:
+            - recent_cf (float): The most recent annual free/operating cash flow.
+            - current_price (float): The current stock price.
+            - shares_out (int): The number of shares outstanding.
+    """
     # Professional ticker-specific defaults in case yfinance is empty or rate-limited
     DEFAULT_SHARES = {
         'RELIANCE.NS': 6765000000,
@@ -86,6 +98,11 @@ def fetch_cash_flow(ticker):
         return float(fallback_cf), float(fallback_price), int(fallback_shares)
 
 def render_module_4(ticker):
+    """Renders the DCF Valuation dashboard page in Streamlit.
+
+    Args:
+        ticker (str): The selected stock ticker.
+    """
     st.subheader("Module 4: DCF Valuation")
     
     recent_cf, current_price, shares_out = fetch_cash_flow(ticker)
