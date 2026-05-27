@@ -6,14 +6,14 @@ from scipy.optimize import minimize
 
 @st.cache_data
 def simulate_bond_returns(_dates: pd.DatetimeIndex, target_vol: float = 0.03) -> pd.Series:
-    """Generate simulated bond returns.
+    """Generates simulated daily returns for bonds.
 
-    Parameters
-    ----------
-    _dates: pd.DatetimeIndex
-        Index of dates for which to generate returns.
-    target_vol: float, optional
-        Desired annualized volatility (default 0.03).
+    Args:
+        _dates (pd.DatetimeIndex): Datetime index for which to generate returns.
+        target_vol (float): Target annualized volatility for the simulation (default 0.03).
+
+    Returns:
+        pd.Series: A series of simulated bond returns.
     """
     np.random.seed(42)
     daily_vol = target_vol / np.sqrt(252)
@@ -21,6 +21,18 @@ def simulate_bond_returns(_dates: pd.DatetimeIndex, target_vol: float = 0.03) ->
     return pd.Series(bond_ret, index=_dates, name='BOND_SIM')
 
 def optimize_portfolio(returns):
+    """Calculates the maximum Sharpe ratio portfolio weights using SLSQP optimization.
+
+    Args:
+        returns (pd.DataFrame): DataFrame of historical asset daily returns.
+
+    Returns:
+        tuple: A tuple containing:
+            - opt_w (np.ndarray): Optimal asset weights.
+            - opt_ret (float): Annualized expected return of the optimal portfolio.
+            - opt_vol (float): Annualized volatility of the optimal portfolio.
+            - opt_sharpe (float): Sharpe ratio of the optimal portfolio.
+    """
     mu = returns.mean() * 252
     cov = returns.cov() * 252
     
@@ -47,6 +59,15 @@ def optimize_portfolio(returns):
     return opt_w, opt_ret, opt_vol, opt_sharpe
 
 def generate_random_portfolios(returns, n_portfolios=5000):
+    """Generates random portfolios for efficient frontier visualization via Monte Carlo.
+
+    Args:
+        returns (pd.DataFrame): DataFrame of historical asset daily returns.
+        n_portfolios (int): Number of random portfolios to generate.
+
+    Returns:
+        np.ndarray: A 2D numpy array of shape (3, n_portfolios) containing return, volatility, and Sharpe ratio.
+    """
     np.random.seed(42)
     mu = returns.mean().values * 252
     cov = returns.cov().values * 252
@@ -60,7 +81,6 @@ def generate_random_portfolios(returns, n_portfolios=5000):
     p_returns = np.dot(weights, mu)
     
     # Vectorized calculation of portfolio risk (volatility)
-    # Volatility = sqrt(w^T * cov * w)
     p_vols = np.sqrt(np.sum(np.dot(weights, cov) * weights, axis=1))
     
     # Vectorized calculation of Sharpe Ratio
@@ -70,6 +90,11 @@ def generate_random_portfolios(returns, n_portfolios=5000):
     return results
 
 def render_module_8(returns_df):
+    """Renders the Portfolio Optimization dashboard page in Streamlit.
+
+    Args:
+        returns_df (pd.DataFrame): DataFrame containing daily log returns of the portfolio assets.
+    """
     st.subheader("Module 8: Portfolio Optimization")
     
     if returns_df.empty:
