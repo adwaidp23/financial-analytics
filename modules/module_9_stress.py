@@ -4,6 +4,11 @@ import numpy as np
 import plotly.graph_objects as go
 
 def render_module_9(returns_df):
+    """Renders the Stress Testing & Scenario Analysis dashboard page in Streamlit.
+
+    Args:
+        returns_df (pd.DataFrame): DataFrame containing daily log returns for all portfolio assets.
+    """
     st.subheader("Module 9: Stress Testing & Scenario Analysis")
     
     if returns_df.empty:
@@ -72,11 +77,15 @@ def render_module_9(returns_df):
         textposition='outside'
     ))
     
+    # Compute dynamic x-axis range to avoid clipping
+    x_min = min(-30.0, min(impacts) - 5)
+    x_max = max(30.0, max(impacts) + 5)
+    
     fig.update_layout(
         title="Portfolio Impact by Scenario",
         xaxis_title="Impact (%)",
         yaxis_title="Scenario",
-        xaxis=dict(range=[-30, 30]),
+        xaxis=dict(range=[x_min, x_max]),
         template="plotly_dark",
         height=400, margin=dict(l=0, r=0, t=40, b=0)
     )
