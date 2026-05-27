@@ -5,6 +5,16 @@ import scipy.stats as stats
 import plotly.graph_objects as go
 
 def calc_kupiec_pof(exceptions, N, alpha):
+    """Calculates the Kupiec Proportion of Failures (POF) Likelihood Ratio test p-value.
+
+    Args:
+        exceptions (int): The number of VaR exceptions observed.
+        N (int): The total number of backtesting observations.
+        alpha (float): The VaR confidence level (e.g., 0.95 or 0.99).
+
+    Returns:
+        float: The p-value of the Likelihood Ratio test.
+    """
     p = 1 - alpha
     if exceptions == 0:
         # If 0 exceptions, it is extremely safe, return p-value 1.0 (fail to reject model validity)
@@ -29,6 +39,11 @@ def calc_kupiec_pof(exceptions, N, alpha):
         return 1.0
 
 def render_module_6(df):
+    """Renders the Value at Risk (VaR) and CVaR analysis dashboard page in Streamlit.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock price data with at least 'Close' and 'Log_Return' columns.
+    """
     st.subheader("Module 6: Value at Risk (VaR) & CVaR")
     
     if df.empty or len(df) < 252:
