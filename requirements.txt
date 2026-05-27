@@ -1,0 +1,14 @@
+streamlit
+yfinance
+pandas
+numpy
+plotly
+pmdarima
+arch
+scipy
+scikit-learn
+statsmodels
+PyPortfolioOpt
+pytest
+pytest-mock
+pytest-cov
