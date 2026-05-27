@@ -4,6 +4,11 @@ import numpy as np
 import plotly.graph_objects as go
 
 def render_module_10(returns_df):
+    """Renders the Correlation Heatmap dashboard page in Streamlit.
+
+    Args:
+        returns_df (pd.DataFrame): DataFrame containing daily log returns for all portfolio assets.
+    """
     st.subheader("Module 10: Correlation Heatmap")
     
     if returns_df.empty:
