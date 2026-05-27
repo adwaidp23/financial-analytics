@@ -1,6 +1,10 @@
 # Python
 __pycache__/
 *.py[cod]
+
+# Dev artifacts / review docs
+Capstone_Review_Report.*
+MCA_FA_Capstone_Project.*
 *$py.class
 *.pyo
 *.pyd
