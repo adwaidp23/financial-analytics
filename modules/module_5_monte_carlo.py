@@ -5,6 +5,18 @@ import plotly.graph_objects as go
 import time
 
 def run_gbm_simulation(S0, mu, sigma, T, N):
+    """Simulates asset price paths using Geometric Brownian Motion (GBM).
+
+    Args:
+        S0 (float): Initial stock price.
+        mu (float): Annualized expected return (drift).
+        sigma (float): Annualized volatility.
+        T (int): Time horizon in trading days.
+        N (int): Number of simulation paths to generate.
+
+    Returns:
+        np.ndarray: A 2D numpy array of shape (T + 1, N) containing simulated price paths.
+    """
     dt = 1/252
     Z = np.random.standard_normal((T, N))
     daily_returns = (mu - 0.5 * sigma ** 2) * dt + sigma * np.sqrt(dt) * Z
@@ -16,6 +28,11 @@ def run_gbm_simulation(S0, mu, sigma, T, N):
     return paths
 
 def render_module_5(df):
+    """Renders the Monte Carlo Simulation (GBM) dashboard page in Streamlit.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock price data with at least 'Close' and 'Log_Return' columns.
+    """
     st.subheader("Module 5: Monte Carlo Simulation (GBM)")
     
     if df.empty:
