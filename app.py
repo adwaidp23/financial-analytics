@@ -108,8 +108,17 @@ st.markdown("""
 st.sidebar.markdown("<h2 style='text-align: center; color: #38bdf8;'>🛡️ Risk Dashboard</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
-TICKERS = ['RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'HDFCBANK.NS', 'WIPRO.NS']
-selected_ticker = st.sidebar.selectbox("Select Core Ticker", TICKERS, index=0)
+TICKERS = [
+    "-- Select a Ticker --",
+    "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS",
+    "WIPRO.NS", "ICICIBANK.NS", "SBIN.NS", "BAJFINANCE.NS"
+]
+selected_ticker = st.sidebar.selectbox("Select Ticker", TICKERS, index=0)
+
+if selected_ticker == "-- Select a Ticker --":
+    st.markdown("### 👆 Select a ticker from the sidebar to begin")
+    st.info("Choose a stock from the sidebar dropdown to load the Risk Analytics Dashboard.")
+    st.stop()
 
 default_end = date.today()
 default_start = default_end - timedelta(days=2 * 365) # Last 2 years default
