@@ -9,6 +9,15 @@ from modules.module_7_credit_risk import generate_and_train_pd_model, fetch_fina
 from modules.module_8_portfolio import optimize_portfolio
 
 def create_sparkline(data, color):
+    """Creates a small, minimalist sparkline line chart using Plotly.
+
+    Args:
+        data (array-like): The y-axis data points for the sparkline.
+        color (str): The CSS color code for the line (e.g., '#00d4ff').
+
+    Returns:
+        go.Figure: A Plotly figure representing the sparkline.
+    """
     fig = go.Figure(go.Scatter(y=data, mode='lines', line=dict(color=color, width=2)))
     fig.update_layout(
         margin=dict(l=0, r=0, t=0, b=0),
@@ -21,6 +30,13 @@ def create_sparkline(data, color):
     return fig
 
 def render_module_1(df, selected_ticker, port_returns):
+    """Renders the Executive Summary dashboard page in Streamlit.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing stock price data with at least a 'Close' column.
+        selected_ticker (str): The selected stock ticker.
+        port_returns (pd.DataFrame): DataFrame of historical returns for all portfolio assets.
+    """
     st.subheader("Module 1: Executive Summary")
     
     # 1a: Current Price, Forecasted Price, DCF Intrinsic Value
