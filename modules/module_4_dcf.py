@@ -3,7 +3,16 @@ import pandas as pd
 import yfinance as yf
 import plotly.graph_objects as go
 import numpy as np
-from utils.theme import apply_theme
+
+try:
+    from utils.theme import apply_theme
+except Exception:
+    def apply_theme(fig):
+        try:
+            fig.update_layout(template='plotly_dark')
+        except Exception:
+            pass
+        return fig
 
 @st.cache_data(show_spinner=False)
 def fetch_cash_flow(ticker):
@@ -108,10 +117,11 @@ def render_module_4(ticker):
     
     recent_cf, current_price, shares_out = fetch_cash_flow(ticker)
     
-    cols = st.columns(3)
+    cols = st.columns([1, 1, 1, 1])
     forecast_years = cols[0].slider("Forecast Period (Years)", min_value=1, max_value=10, value=5)
-    wacc = cols[1].slider("WACC (%)", min_value=5.0, max_value=25.0, value=10.0, step=0.5) / 100
-    term_growth = cols[2].slider("Terminal Growth Rate (%)", min_value=1.0, max_value=5.0, value=3.0, step=0.5) / 100
+    short_term_growth = cols[1].slider("Short-Term Growth Rate (%)", min_value=3.0, max_value=20.0, value=10.0, step=0.5) / 100
+    wacc = cols[2].slider("WACC (%)", min_value=5.0, max_value=25.0, value=10.0, step=0.5) / 100
+    term_growth = cols[3].slider("Terminal Growth Rate (%)", min_value=1.0, max_value=5.0, value=3.0, step=0.5) / 100
     
     if wacc <= term_growth:
         st.error("WACC must be strictly greater than the Terminal Growth Rate.")
@@ -120,10 +130,9 @@ def render_module_4(ticker):
     cf_forecast = []
     pv_cf = []
     current_cf = recent_cf
-    st_growth = 0.10 # Assuming 10% short-term growth for the forecast period
     
     for i in range(1, forecast_years + 1):
-        current_cf = current_cf * (1 + st_growth)
+        current_cf = current_cf * (1 + short_term_growth)
         cf_forecast.append(current_cf)
         pv = current_cf / ((1 + wacc) ** i)
         pv_cf.append(pv)

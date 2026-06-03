@@ -2,7 +2,17 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from utils.theme import apply_theme
+
+try:
+    from utils.theme import apply_theme
+except Exception:
+    def apply_theme(fig):
+        try:
+            fig.update_layout(template='plotly_dark')
+        except Exception:
+            pass
+        return fig
+from scipy.optimize import minimize
 
 @st.cache_data
 def simulate_bond_returns(_dates: pd.DatetimeIndex, target_vol: float = 0.03) -> pd.Series:
@@ -148,8 +158,8 @@ def render_module_8(returns_df):
         name='Max Sharpe Portfolio'
     ))
     
-apply_theme(fig)
-    st.plotly_chart(fig, use_container_width=True)
+    apply_theme(fig)
+    st.plotly_chart(fig, width='stretch')
     
     col1, col2 = st.columns([1, 1])
     
@@ -157,7 +167,7 @@ apply_theme(fig)
         pie_fig = go.Figure(data=[go.Pie(labels=selected_assets, values=opt_w, hole=.3)])
         pie_fig.update_layout(title="Optimal Portfolio Allocation", height=400)
         apply_theme(pie_fig)
-        st.plotly_chart(pie_fig, use_container_width=True)
+        st.plotly_chart(pie_fig, width='stretch')
         
     with col2:
         st.markdown("<br><br>**Max Sharpe Portfolio Metrics**", unsafe_allow_html=True)

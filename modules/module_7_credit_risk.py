@@ -5,7 +5,16 @@ import plotly.graph_objects as go
 import yfinance as yf
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
-from utils.theme import apply_theme
+
+try:
+    from utils.theme import apply_theme
+except Exception:
+    def apply_theme(fig):
+        try:
+            fig.update_layout(template='plotly_dark')
+        except Exception:
+            pass
+        return fig
 
 @st.cache_data(show_spinner=False)
 def generate_and_train_pd_model():

@@ -3,9 +3,9 @@ import plotly.graph_objects as go
 # Central Plotly style for the Financial Risk Analytics Dashboard
 DEFAULT_LAYOUT = dict(
     template='none',  # we apply custom colors directly
-    paper_bgcolor='#0d0f12',
-    plot_bgcolor='#0d0f12',
-    font=dict(family='Outfit', color='#e2e8f0'),
+    paper_bgcolor='#f5f5f5',
+    plot_bgcolor='#ffffff',
+    font=dict(family='Outfit', color='#111111'),
     xaxis=dict(
         gridcolor='#1e293b',
         tickfont=dict(color='#94a3b8'),

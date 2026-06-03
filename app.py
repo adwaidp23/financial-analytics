@@ -1,8 +1,21 @@
 import streamlit as st
 import pandas as pd
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from utils.data_fetcher import fetch_stock_data
 from modules.module_1_summary import render_module_1
+
+st.set_page_config(
+    page_title="Financial Risk Analytics",
+    page_icon="📈",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Default portfolio ticker universe for portfolio and correlation modules
+TICKERS = [
+    'RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'HDFCBANK.NS',
+    'ICICIBANK.NS', 'SBIN.NS', 'BAJFINANCE.NS', 'WIPRO.NS'
+]
 from utils.theme import init_theme, get_template, apply_theme, get_css
 from modules.module_2_arima import render_module_2
 from modules.module_3_garch import render_module_3
@@ -19,96 +32,68 @@ from utils.data_fetcher import fetch_portfolio_data
 init_theme()
 
 # Theme toggle and injection
-st.sidebar.checkbox("Dark Mode", value=st.session_state.dark_mode, key="dark_mode")
+# The key automatically syncs with st.session_state.dark_mode (initialized in init_theme)
+st.sidebar.checkbox("Dark Mode", key="dark_mode")
 st.markdown(get_css(), unsafe_allow_html=True)
+
+st.markdown(
+    """
+    <div class='dashboard-header'>
+        <div>
+            <h1>Financial Risk Analytics</h1>
+            <p>Interactive market risk and portfolio analytics dashboard for Indian equities.</p>
+        </div>
+        <div class='dashboard-badges'>
+            <span>📊 Multi-Module Risk Toolkit</span>
+            <span>⚡ Live Model Insights</span>
+            <span>🔒 Data-Driven Decisions</span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # -----------------
 # Sidebar UI Controls
 # -----------------
-st.sidebar.markdown("<h2 style='text-align: center; color: #38bdf8;'>🛡️ Risk Dashboard</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<div class='sidebar-heading'>🛡️ Risk Dashboard</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div class='sidebar-description'>Use the controls below to choose a ticker, adjust the date range, and explore each analytics module.</div>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
-TICKER_INPUT = st.sidebar.text_input("Enter Ticker (e.g., RELIANCE.NS)", value="")
-# Validate ticker
-if TICKER_INPUT:
-    try:
-        from utils.ticker_input import get_valid_ticker
-        selected_ticker = get_valid_ticker(TICKER_INPUT)
-        if not selected_ticker:
-            st.error(f"Ticker '{TICKER_INPUT}' is invalid or data not available.")
-            st.stop()
-    except Exception as e:
-        st.error(f"Error validating ticker: {e}")
+ticker_selection = st.sidebar.selectbox(
+    "Choose a ticker from the default universe",
+    ["-- Select a Ticker --"] + TICKERS,
+    index=0,
+)
+TICKER_INPUT = st.sidebar.text_input("Or enter a custom ticker (e.g., RELIANCE.NS)", value="")
+
+# Resolve selected ticker with validation
+try:
+    from utils.ticker_input import get_valid_ticker
+    if TICKER_INPUT.strip():
+        selected_ticker = get_valid_ticker(TICKER_INPUT.strip())
+    elif ticker_selection != "-- Select a Ticker --":
+        selected_ticker = ticker_selection
+    else:
+        st.markdown("### 👆 Enter a ticker or select one from the sidebar to begin")
+        st.info("Provide a valid NSE ticker symbol or choose one from the curated universe.")
         st.stop()
-else:
-    st.markdown("### 👆 Enter a ticker in the sidebar to begin")
-    st.info("Provide a valid NSE ticker symbol, e.g., RELIANCE.NS")
+except Exception as e:
+    st.error(f"Error validating ticker: {e}")
     st.stop()
 
-# ... (keep date range etc.)
-# Replace module dispatch with try/except
-if selected_module == "summary":
-    try:
-        render_module_1(df, selected_ticker, port_returns)
-    except Exception as e:
-        st.error(f"Error in Executive Summary: {e}")
-elif selected_module == "arima":
-    try:
-        render_module_2(df)
-    except Exception as e:
-        st.error(f"Error in ARIMA module: {e}")
-elif selected_module == "garch":
-    try:
-        render_module_3(df)
-    except Exception as e:
-        st.error(f"Error in GARCH module: {e}")
-elif selected_module == "dcf":
-    try:
-        render_module_4(selected_ticker)
-    except Exception as e:
-        st.error(f"Error in DCF module: {e}")
-elif selected_module == "monte_carlo":
-    try:
-        render_module_5(df)
-    except Exception as e:
-        st.error(f"Error in Monte Carlo module: {e}")
-elif selected_module == "var":
-    try:
-        render_module_6(df)
-    except Exception as e:
-        st.error(f"Error in VaR module: {e}")
-elif selected_module == "credit_risk":
-    try:
-        render_module_7(selected_ticker)
-    except Exception as e:
-        st.error(f"Error in Credit Risk module: {e}")
-elif selected_module == "portfolio":
-    try:
-        render_module_8(port_returns)
-    except Exception as e:
-        st.error(f"Error in Portfolio module: {e}")
-elif selected_module == "stress":
-    try:
-        render_module_9(port_returns)
-    except Exception as e:
-        st.error(f"Error in Stress module: {e}")
-elif selected_module == "correlation":
-    try:
-        render_module_10(port_returns)
-    except Exception as e:
-        st.error(f"Error in Correlation module: {e}")
+# The previous sidebar dispatch using `selected_module` has been removed.
+# Module rendering is now handled via the top‑tab navigation defined later.
+# The variables `selected_module`, `df`, and `port_returns` are now defined later in the script.
+# This placeholder ensures no NameError occurs.
 
-if selected_ticker == "-- Select a Ticker --":
-    st.markdown("### 👆 Select a ticker from the sidebar to begin")
-    st.info("Choose a stock from the sidebar dropdown to load the Risk Analytics Dashboard.")
-    st.stop()
 
 default_end = date.today()
 default_start = default_end - timedelta(days=2 * 365) # Last 2 years default
 date_range = st.sidebar.date_input("Select Date Range", value=(default_start, default_end))
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("<h4 style='color: #94a3b8;'>Navigate Modules</h4>", unsafe_allow_html=True)
+st.sidebar.markdown("<h4 class='sidebar-subtitle'>Navigate Modules</h4>", unsafe_allow_html=True)
 
 MODULES = {
     "📊 Executive Summary": "summary",
@@ -128,6 +113,9 @@ MODULES = {
 
 
 st.sidebar.markdown("---")
+if st.sidebar.button("Refresh Dashboard", help="Reload the dashboard with the latest ticker and date range."):
+    st.experimental_rerun()
+st.sidebar.markdown("<div class='sidebar-help'>Tip: Use the date range selector and module tabs to explore models interactively.</div>", unsafe_allow_html=True)
 st.sidebar.info("Data auto-refreshes when selections change.")
 
 # Validate Date Range
@@ -155,10 +143,14 @@ else:
     last_price = 0
     delta = 0
 
+updated_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
 st.markdown(
-    f"""<div class="kpi-header">
-            <div class="kpi-card"><h3>{selected_ticker}</h3></div>
-            <div class="kpi-card"><h3>{last_price:.2f}</h3><p>{delta:+.2f}%</p></div>
+    f"""<div class='kpi-header'>
+            <div class='kpi-card'><h3>{selected_ticker}</h3></div>
+            <div class='kpi-card'><h3>₹ {last_price:.2f}</h3><p>Daily Δ {delta:+.2f}%</p></div>
+            <div class='kpi-card badge-card'><span>Date Range:</span><strong>{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}</strong></div>
+            <div class='kpi-card badge-card'><span>Last Refresh:</span><strong>{updated_time}</strong></div>
         </div>""",
     unsafe_allow_html=True,
 )
@@ -166,8 +158,9 @@ st.markdown(
 # Lazy data fetching: always download portfolio data (used by several modules)
 port_returns = pd.DataFrame()
 with st.spinner("Fetching portfolio data for optimization..."):
-    valid_tickers = [t for t in TICKERS if t != "-- Select a Ticker --"]
-    portfolio_tickers = valid_tickers + ['GOLDBEES.NS']
+    portfolio_tickers = [selected_ticker] + [t for t in TICKERS if t != selected_ticker]
+    if 'GOLDBEES.NS' not in portfolio_tickers:
+        portfolio_tickers.append('GOLDBEES.NS')
     port_returns = fetch_portfolio_data(portfolio_tickers, start_date=start_date, end_date=end_date)
     if not port_returns.empty:
         bond_ret = simulate_bond_returns(port_returns.index)
@@ -178,9 +171,9 @@ with st.spinner("Fetching portfolio data for optimization..."):
 # -----------------
 # Main Content Area
 # -----------------
-st.markdown(f"<h1 style='color: #ffffff; margin-bottom: 0;'>{selected_ticker} Risk Analytics</h1>", unsafe_allow_html=True)
-st.markdown(f"<p style='color: #64748b;'>Date Range: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}</p>", unsafe_allow_html=True)
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown(f"<h1 class='page-title'>{selected_ticker} Risk Analytics</h1>", unsafe_allow_html=True)
+st.markdown(f"<p class='page-subtitle'>A unified risk analytics experience across forecasting, valuation, portfolio, and stress-testing modules.</p>", unsafe_allow_html=True)
+st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
 # Dispatch modules inside top tabs after data is ready
 tabs = st.tabs(list(MODULES.keys()))

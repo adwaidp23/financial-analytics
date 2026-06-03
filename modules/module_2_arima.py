@@ -5,7 +5,16 @@ import plotly.graph_objects as go
 from pmdarima import auto_arima
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
 import warnings
-from utils.theme import apply_theme
+
+try:
+    from utils.theme import apply_theme
+except Exception:
+    def apply_theme(fig):
+        try:
+            fig.update_layout(template='plotly_dark')
+        except Exception:
+            pass
+        return fig
 
 warnings.filterwarnings("ignore")
 

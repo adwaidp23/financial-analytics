@@ -2,7 +2,16 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from utils.theme import apply_theme
+
+try:
+    from utils.theme import apply_theme
+except Exception:
+    def apply_theme(fig):
+        try:
+            fig.update_layout(template='plotly_dark')
+        except Exception:
+            pass
+        return fig
 import time
 
 def run_gbm_simulation(S0, mu, sigma, T, N):

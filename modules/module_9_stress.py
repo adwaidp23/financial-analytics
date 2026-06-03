@@ -2,7 +2,16 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from utils.theme import apply_theme
+
+try:
+    from utils.theme import apply_theme
+except Exception:
+    def apply_theme(fig):
+        try:
+            fig.update_layout(template='plotly_dark')
+        except Exception:
+            pass
+        return fig
 
 def render_module_9(returns_df):
     """Renders the Stress Testing & Scenario Analysis dashboard page in Streamlit.
@@ -83,13 +92,13 @@ def render_module_9(returns_df):
     x_max = max(30.0, max(impacts) + 5)
     
     fig.update_layout(
-    title="Portfolio Impact by Scenario",
-    xaxis_title="Impact (%)",
-    yaxis_title="Scenario",
-    xaxis=dict(range=[x_min, x_max]),
-    height=400, margin=dict(l=0, r=0, t=40, b=0)
-)
-apply_theme(fig)
+        title="Portfolio Impact by Scenario",
+        xaxis_title="Impact (%)",
+        yaxis_title="Scenario",
+        xaxis=dict(range=[x_min, x_max]),
+        height=400, margin=dict(l=0, r=0, t=40, b=0)
+    )
+    apply_theme(fig)
     
     st.plotly_chart(fig, use_container_width=True)
     

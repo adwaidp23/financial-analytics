@@ -27,15 +27,19 @@ def calc_kupiec_pof(exceptions, N, alpha):
     p_hat = exceptions / N
     
     try:
-        # Kupiec POF Likelihood Ratio Test Formula
-        num = (p**exceptions) * ((1 - p)**(N - exceptions))
-        den = (p_hat**exceptions) * ((1 - p_hat)**(N - exceptions))
-        if den <= 0 or num <= 0:
-            return 0.0
-            
-        lr_statistic = -2 * np.log(num / den)
+        # Kupiec POF Likelihood Ratio Test Formula (log-form for numeric stability)
+        if p_hat == 0 or p_hat == 1:
+            # p_hat extremes are handled as model pass/fail boundaries
+            return 1.0 if exceptions == 0 else 0.0
+
+        lr_statistic = -2.0 * (
+            exceptions * np.log(p / p_hat) +
+            (N - exceptions) * np.log((1 - p) / (1 - p_hat))
+        )
         p_value = 1 - stats.chi2.cdf(lr_statistic, df=1)
-        return float(p_value) if not np.isnan(p_value) else 1.0
+        if np.isnan(p_value):
+            return 1.0
+        return float(max(0.0, min(1.0, p_value)))
     except Exception:
         return 1.0
 
@@ -54,8 +58,7 @@ def render_module_6(df):
     returns = df['Log_Return'].dropna()
     current_price = df['Close'].iloc[-1]
     
-    # 6a: Three VaR methods (95% and 99%)
-    # 1. Historical Simulation
+    # 6a: Three VaR methods (95% and 99%) using returns consistently
     var_95_hist_pct = np.percentile(returns, 5)
     var_99_hist_pct = np.percentile(returns, 1)
     
@@ -95,12 +98,27 @@ def render_module_6(df):
     st.markdown("**1-Day Value at Risk (VaR) Comparison**")
     st.dataframe(var_df, hide_index=True)
     
-    # 6b: Expected Shortfall (CVaR) at 95%
-    # Using Monte Carlo simulation data for CVaR
-    cvar_95_mc = sim_pnl[sim_pnl <= var_95_mc].mean()
-    
-    st.markdown(f"**Expected Shortfall (CVaR 95%):** <span style='color:#ff4b4b; font-size:18px;'>₹ {cvar_95_mc:,.2f}</span>", unsafe_allow_html=True)
-    st.info("CVaR (Expected Shortfall) exceeds VaR in magnitude because while VaR tells us the maximum loss at a specific confidence level (e.g., the threshold), CVaR tells us the expected (average) loss *given* that the VaR threshold has been breached. It focuses on the tail end of the distribution.")
+    # 6b: Expected Shortfall (CVaR) at 95% for all methods
+    cvar_95_hist_pct = returns[returns <= var_95_hist_pct].mean() if np.any(returns <= var_95_hist_pct) else var_95_hist_pct
+    cvar_95_param_pct = returns[returns <= var_95_param_pct].mean() if np.any(returns <= var_95_param_pct) else var_95_param_pct
+    cvar_95_mc_pct = sim_returns[sim_returns <= np.percentile(sim_returns, 5)].mean()
+
+    cvar_95_hist = current_price * (np.exp(cvar_95_hist_pct) - 1)
+    cvar_95_param = current_price * (np.exp(cvar_95_param_pct) - 1)
+    cvar_95_mc = current_price * (np.exp(cvar_95_mc_pct) - 1)
+
+    cvar_df = pd.DataFrame({
+        "Method": ["Historical Simulation", "Parametric Normal", "Monte Carlo (10k)"],
+        "CVaR 95% (1-Day)": [
+            f"₹ {cvar_95_hist:,.2f}",
+            f"₹ {cvar_95_param:,.2f}",
+            f"₹ {cvar_95_mc:,.2f}"
+        ]
+    })
+
+    st.markdown("**Expected Shortfall (CVaR 95%) Comparison**")
+    st.dataframe(cvar_df, hide_index=True)
+    st.info("CVaR (Expected Shortfall) measures the average loss in the worst 5% of outcomes and is thus a more conservative tail-risk metric than VaR.")
     
     # 6c: Loss Distribution Chart
     fig = go.Figure()
@@ -141,15 +159,13 @@ def render_module_6(df):
     
     st.plotly_chart(fig, use_container_width=True)
     
-    # 6d: Kupiec Backtesting
-    # We test on the past 252 trading days using Parametric VaR approach for historical backtest
+    # 6d: Kupiec Backtesting using the same return threshold as the VaR model
     hist_prices = df['Close'].iloc[-253:].values
-    # hist_returns = np.diff(np.log(hist_prices))
-    hist_pnl = hist_prices[1:] - hist_prices[:-1]
+    hist_returns = np.log(hist_prices[1:] / hist_prices[:-1])
     
-    # Using a simplified backtest: check if actual daily loss exceeded historical 95% VaR threshold
-    exceptions = np.sum(hist_pnl < var_95_hist)
-    N = len(hist_pnl)
+    # Using historical one-day returns to count exceptions below the 95% VaR return threshold
+    exceptions = np.sum(hist_returns < var_95_hist_pct)
+    N = len(hist_returns)
     alpha = 0.95
     expected_exceptions = N * (1 - alpha)
     

@@ -4,6 +4,16 @@ import numpy as np
 import plotly.graph_objects as go
 from arch import arch_model
 
+try:
+    from utils.theme import apply_theme
+except Exception:
+    def apply_theme(fig):
+        try:
+            fig.update_layout(template='plotly_dark')
+        except Exception:
+            pass
+        return fig
+
 @st.cache_data(show_spinner=False)
 def run_garch_model(df):
     """Fits a GARCH(1,1) model to stock log returns and estimates conditional volatility.
