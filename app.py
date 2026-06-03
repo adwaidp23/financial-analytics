@@ -114,7 +114,7 @@ MODULES = {
 
 st.sidebar.markdown("---")
 if st.sidebar.button("Refresh Dashboard", help="Reload the dashboard with the latest ticker and date range."):
-    st.experimental_rerun()
+    st.rerun()
 st.sidebar.markdown("<div class='sidebar-help'>Tip: Use the date range selector and module tabs to explore models interactively.</div>", unsafe_allow_html=True)
 st.sidebar.info("Data auto-refreshes when selections change.")
 
