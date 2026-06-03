@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+from utils.theme import apply_theme
 import time
 
 def run_gbm_simulation(S0, mu, sigma, T, N):
@@ -111,8 +112,9 @@ def render_module_5(df):
     fig.update_layout(
         title=f"Monte Carlo Paths (Simulated: {n_sims}, Rendered: {plot_n})",
         xaxis_title="Trading Days", yaxis_title="Price (INR)",
-        template="plotly_dark", height=450, margin=dict(l=0, r=0, t=40, b=0)
+        height=450, margin=dict(l=0, r=0, t=40, b=0)
     )
+    fig = apply_theme(fig)
     st.plotly_chart(fig, use_container_width=True)
     
     exp_price = np.mean(final_prices)

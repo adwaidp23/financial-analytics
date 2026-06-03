@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-
+from utils.theme import apply_theme
 def render_module_10(returns_df):
     """Renders the Correlation Heatmap dashboard page in Streamlit.
 
@@ -53,9 +53,9 @@ def render_module_10(returns_df):
     fig.update_layout(
         title="Asset Correlation Matrix",
         annotations=annotations,
-        template="plotly_dark",
         height=600, margin=dict(l=0, r=0, t=40, b=0)
     )
+    apply_theme(fig)
     
     st.plotly_chart(fig, use_container_width=True)
     

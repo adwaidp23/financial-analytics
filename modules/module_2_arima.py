@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from pmdarima import auto_arima
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
 import warnings
+from utils.theme import apply_theme
 
 warnings.filterwarnings("ignore")
 
@@ -146,7 +147,8 @@ def render_module_2(df):
         marker=dict(color="#444"), line=dict(width=0), mode='lines', fillcolor='rgba(0, 212, 255, 0.2)', fill='tonexty', showlegend=False
     ))
     
-    fig.update_layout(title="ARIMA 90-Day Forecast", template="plotly_dark", height=450, margin=dict(l=0, r=0, t=40, b=0))
+    fig.update_layout(title="ARIMA 90-Day Forecast", height=450, margin=dict(l=0, r=0, t=40, b=0))
+    fig = apply_theme(fig)
     st.plotly_chart(fig, use_container_width=True)
     
     st.markdown(f"**Selected Model:** ARIMA{order} | **AIC:** {aic:.2f} | **BIC:** {bic:.2f}")

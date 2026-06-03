@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import scipy.stats as stats
 import plotly.graph_objects as go
+from utils.theme import apply_theme
 
 def calc_kupiec_pof(exceptions, N, alpha):
     """Calculates the Kupiec Proportion of Failures (POF) Likelihood Ratio test p-value.
@@ -128,15 +129,15 @@ def render_module_6(df):
     ))
     
     fig.update_layout(
-        title="Monte Carlo 1-Day P&L Distribution (Loss Tail Highlighted)",
-        xaxis_title="Profit & Loss (INR)",
-        yaxis_title="Probability Density",
-        template="plotly_dark",
-        barmode='overlay',
-        height=400,
-        margin=dict(l=0, r=0, t=40, b=0),
-        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
-    )
+    title="Monte Carlo 1-Day P&L Distribution (Loss Tail Highlighted)",
+    xaxis_title="Profit & Loss (INR)",
+    yaxis_title="Probability Density",
+    height=400,
+    barmode='overlay',
+    margin=dict(l=0, r=0, t=40, b=0),
+    legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
+)
+    apply_theme(fig)
     
     st.plotly_chart(fig, use_container_width=True)
     

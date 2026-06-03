@@ -2,9 +2,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+import yfinance as yf
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
-import yfinance as yf
+from utils.theme import apply_theme
 
 @st.cache_data(show_spinner=False)
 def generate_and_train_pd_model():
@@ -160,7 +161,7 @@ def render_module_7(ticker):
                     'value': credit_score}
             }))
             
-        fig.update_layout(height=300, margin=dict(l=10, r=10, t=40, b=10), template="plotly_dark")
+        apply_theme(fig)
         st.plotly_chart(fig, use_container_width=True)
         
     with col2:
@@ -190,9 +191,5 @@ def render_module_7(ticker):
         
     fig_trend = go.Figure()
     fig_trend.add_trace(go.Scatter(x=months, y=trend_pds, mode='lines+markers', line=dict(color='#00cc96', width=2)))
-    fig_trend.update_layout(
-        title="Simulated PD Trend (15 Months)",
-        xaxis_title="Month", yaxis_title="Probability of Default (%)",
-        template="plotly_dark", height=300, margin=dict(l=0, r=0, t=40, b=0)
-    )
+    apply_theme(fig_trend)
     st.plotly_chart(fig_trend, use_container_width=True)

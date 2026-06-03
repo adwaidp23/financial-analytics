@@ -3,6 +3,7 @@ import pandas as pd
 import yfinance as yf
 import plotly.graph_objects as go
 import numpy as np
+from utils.theme import apply_theme
 
 @st.cache_data(show_spinner=False)
 def fetch_cash_flow(ticker):
@@ -170,7 +171,8 @@ def render_module_4(ticker):
         totals_marker_color="#b82edd"
     )
     
-    fig.update_layout(title="Discounted Cash Flow (DCF) Waterfall", template="plotly_dark", height=450, margin=dict(l=0, r=0, t=40, b=0))
+    fig.update_layout(title="Discounted Cash Flow (DCF) Waterfall", height=450, margin=dict(l=0, r=0, t=40, b=0))
+    fig = apply_theme(fig)
     st.plotly_chart(fig, use_container_width=True)
     
     st.markdown(f"**Margin of Safety:** <span style='color:{val_color}; font-size:20px; font-weight:bold;'>{margin_of_safety:.2f}% ({val_status})</span>", unsafe_allow_html=True)
