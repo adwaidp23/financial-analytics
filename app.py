@@ -182,31 +182,31 @@ st.markdown(f"<h1 style='color: #ffffff; margin-bottom: 0;'>{selected_ticker} Ri
 st.markdown(f"<p style='color: #64748b;'>Date Range: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}</p>", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
-    # Dispatch modules inside top tabs after data is ready
-    tabs = st.tabs(list(MODULES.keys()))
-    for label, tab in zip(MODULES.keys(), tabs):
-        with tab:
-            module_key = MODULES[label]
-            if module_key == "summary":
-                render_module_1(df, selected_ticker, port_returns)
-            elif module_key == "arima":
-                render_module_2(df)
-            elif module_key == "garch":
-                render_module_3(df)
-            elif module_key == "dcf":
-                render_module_4(selected_ticker)
-            elif module_key == "monte_carlo":
-                render_module_5(df)
-            elif module_key == "var":
-                render_module_6(df)
-            elif module_key == "credit_risk":
-                render_module_7(selected_ticker)
-            elif module_key == "portfolio":
-                render_module_8(port_returns)
-            elif module_key == "stress":
-                render_module_9(port_returns)
-            elif module_key == "correlation":
-                render_module_10(port_returns)
+# Dispatch modules inside top tabs after data is ready
+tabs = st.tabs(list(MODULES.keys()))
+for label, tab in zip(MODULES.keys(), tabs):
+    with tab:
+        module_key = MODULES[label]
+        if module_key == "summary":
+            render_module_1(df, selected_ticker, port_returns)
+        elif module_key == "arima":
+            render_module_2(df)
+        elif module_key == "garch":
+            render_module_3(df)
+        elif module_key == "dcf":
+            render_module_4(selected_ticker)
+        elif module_key == "monte_carlo":
+            render_module_5(df)
+        elif module_key == "var":
+            render_module_6(df)
+        elif module_key == "credit_risk":
+            render_module_7(selected_ticker)
+        elif module_key == "portfolio":
+            render_module_8(port_returns)
+        elif module_key == "stress":
+            render_module_9(port_returns)
+        elif module_key == "correlation":
+            render_module_10(port_returns)
 
 
 st.markdown("---")
