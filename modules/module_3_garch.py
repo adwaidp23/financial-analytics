@@ -75,7 +75,9 @@ def render_module_3(df):
     spike_date = cond_vol.idxmax()
     spike_val = cond_vol.loc[spike_date] * 100
     
-    fig.add_vline(x=spike_date.strftime('%Y-%m-%d'), line_dash="dash", line_color="red", annotation_text="Max Spike")
+    spike_date_str = spike_date.strftime('%Y-%m-%d')
+    fig.add_vline(x=spike_date_str, line_dash="dash", line_color="red")
+    fig.add_annotation(x=spike_date_str, y=1.05, yref="paper", text="Max Spike", showarrow=False, font=dict(color="red"))
     
     fig.update_layout(title="Volatility Modeling: GARCH vs Rolling", template="plotly_dark", height=450, yaxis_title="Annualised Volatility (%)", margin=dict(l=0, r=0, t=40, b=0))
     st.plotly_chart(fig, use_container_width=True)
