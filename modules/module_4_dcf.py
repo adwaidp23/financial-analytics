@@ -164,7 +164,11 @@ def render_module_4(ticker):
         y=y_values,
         connector={"line": {"color": "rgba(255,255,255,0.2)"}}
     ))
-    fig.data[0].marker.color = colors
+    fig.update_traces(
+        increasing_marker_color="#00cc96", 
+        decreasing_marker_color="#ff4b4b",
+        totals_marker_color="#b82edd"
+    )
     
     fig.update_layout(title="Discounted Cash Flow (DCF) Waterfall", template="plotly_dark", height=450, margin=dict(l=0, r=0, t=40, b=0))
     st.plotly_chart(fig, use_container_width=True)

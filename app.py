@@ -171,7 +171,9 @@ if df.empty:
 port_returns = pd.DataFrame()
 if selected_module in ["summary", "portfolio", "stress", "correlation"]:
     with st.spinner("Fetching portfolio data for optimization..."):
-        portfolio_tickers = TICKERS + ['GOLDBEES.NS']
+        # Filter out the dummy selection string to prevent yfinance timeouts and lag
+        valid_tickers = [t for t in TICKERS if t != "-- Select a Ticker --"]
+        portfolio_tickers = valid_tickers + ['GOLDBEES.NS']
         port_returns = fetch_portfolio_data(portfolio_tickers, start_date=start_date, end_date=end_date)
         if not port_returns.empty:
             # Simulate low-volatility bond returns

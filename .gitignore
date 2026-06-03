@@ -23,7 +23,7 @@ venv/
 ENV/
 
 # Streamlit cache
-.streamlit/
+# .streamlit/ (Un-ignored so config.toml for dark theme is pushed to Cloud)
 
 # IDE
 .vscode/

@@ -3,7 +3,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False)
 def fetch_stock_data(ticker, start_date, end_date):
     """
     Fetches historical stock data using yfinance.
@@ -38,7 +38,7 @@ def fetch_stock_data(ticker, start_date, end_date):
         print(f"Error fetching data for {ticker}: {e}")
         return pd.DataFrame()
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False)
 def fetch_financial_metrics(ticker):
     """
     Fetches basic info and financial ratios needed for DCF and Credit Risk models.
@@ -51,7 +51,7 @@ def fetch_financial_metrics(ticker):
         print(f"Error fetching metrics for {ticker}: {e}")
         return {}
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False)
 def fetch_portfolio_data(tickers, start_date, end_date):
     """
     Fetches closing prices for a list of tickers, aligns them, and returns a DataFrame of Log Returns.

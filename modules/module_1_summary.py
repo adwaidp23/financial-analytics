@@ -112,7 +112,8 @@ def render_module_1(df, selected_ticker, port_returns):
     
     # Compute Beta, Jensen's Alpha, R² via NIFTY50 regression
     try:
-        nifty = yf.download("^NSEI", start=df.index[0], end=df.index[-1], progress=False)
+        from utils.data_fetcher import fetch_stock_data
+        nifty = fetch_stock_data("^NSEI", start_date=df.index[0].date(), end_date=df.index[-1].date())
         if isinstance(nifty.columns, pd.MultiIndex):
             nifty.columns = nifty.columns.get_level_values(0)
         nifty_ret = np.log(nifty["Close"] / nifty["Close"].shift(1)).dropna()
