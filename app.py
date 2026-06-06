@@ -36,29 +36,23 @@ init_theme()
 st.sidebar.checkbox("Dark Mode", key="dark_mode")
 st.markdown(get_css(), unsafe_allow_html=True)
 
-st.markdown(
-    """
-    <div class='dashboard-header'>
-        <div>
-            <h1>Financial Risk Analytics</h1>
-            <p>Interactive market risk and portfolio analytics dashboard for Indian equities.</p>
-        </div>
-        <div class='dashboard-badges'>
-            <span>📊 Multi-Module Risk Toolkit</span>
-            <span>⚡ Live Model Insights</span>
-            <span>🔒 Data-Driven Decisions</span>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# The banner is removed; we will use a unified top header after data is fetched
 
 # -----------------
 # Sidebar UI Controls
 # -----------------
-st.sidebar.markdown("<div class='sidebar-heading'>🛡️ Risk Dashboard</div>", unsafe_allow_html=True)
-st.sidebar.markdown("<div class='sidebar-description'>Use the controls below to choose a ticker, adjust the date range, and explore each analytics module.</div>", unsafe_allow_html=True)
-st.sidebar.markdown("---")
+st.sidebar.markdown("""
+<div class='sidebar-logo-container'>
+    <div class='sidebar-logo-icon'>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 22L12 2L22 22H2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+    <div class='sidebar-logo-text'>RISK TERMINAL</div>
+</div>
+""", unsafe_allow_html=True)
+
+st.sidebar.markdown("<span class='sidebar-label'>TICKER SELECTION</span>", unsafe_allow_html=True)
 
 ticker_selection = st.sidebar.selectbox(
     "Choose a ticker from the default universe",
@@ -90,9 +84,10 @@ except Exception as e:
 
 default_end = date.today()
 default_start = default_end - timedelta(days=2 * 365) # Last 2 years default
-date_range = st.sidebar.date_input("Select Date Range", value=(default_start, default_end))
+st.sidebar.markdown("<span class='sidebar-label' style='margin-top:20px;'>DATE RANGE</span>", unsafe_allow_html=True)
+date_range = st.sidebar.date_input("", value=(default_start, default_end), label_visibility="collapsed")
 
-st.sidebar.markdown("---")
+st.sidebar.markdown("<hr style='border-color: #2A2E39; margin: 20px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("<h4 class='sidebar-subtitle'>Navigate Modules</h4>", unsafe_allow_html=True)
 
 MODULES = {
@@ -108,14 +103,14 @@ MODULES = {
     "🕸️ Correlation Heatmap (M10)": "correlation"
 }
 
-# ----- Top Tab Bar -----
-
-
-
-st.sidebar.markdown("---")
-if st.sidebar.button("Refresh Dashboard", help="Reload the dashboard with the latest ticker and date range."):
+# ----- Sidebar Navigation -----
+st.sidebar.markdown("<div class='sidebar-nav'>", unsafe_allow_html=True)
+for label, key in MODULES.items():
+    st.sidebar.markdown(f"<a href='#{key}' style='display: block; padding: 10px 15px; color: #9CA3AF; text-decoration: none; font-size: 13px; font-weight: 500; border-radius: 6px; margin-bottom: 4px; transition: all 0.2s;' onmouseover=\"this.style.background='rgba(255,255,255,0.05)'; this.style.color='#fff'\" onmouseout=\"this.style.background='transparent'; this.style.color='#9CA3AF'\">{label}</a>", unsafe_allow_html=True)
+st.sidebar.markdown("</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<hr style='border-color: #2A2E39; margin: 20px 0;'>", unsafe_allow_html=True)
+if st.sidebar.button("Refresh Dashboard", use_container_width=True):
     st.rerun()
-st.sidebar.markdown("<div class='sidebar-help'>Tip: Use the date range selector and module tabs to explore models interactively.</div>", unsafe_allow_html=True)
 st.sidebar.info("Data auto-refreshes when selections change.")
 
 # Validate Date Range
@@ -134,24 +129,54 @@ if df.empty:
     st.error(f"Failed to fetch data for {selected_ticker}.")
     st.stop()
 
-# KPI Sticky Header (computes latest price and daily change)
+# Mockup Header
 if not df.empty and 'Close' in df.columns:
     last_price = df['Close'].iloc[-1]
     prev_price = df['Close'].iloc[-2] if len(df) > 1 else last_price
     delta = ((last_price - prev_price) / prev_price * 100) if prev_price else 0
+    price_change_class = "positive" if delta >= 0 else "negative"
+    price_change_sign = "+" if delta >= 0 else ""
 else:
     last_price = 0
     delta = 0
+    price_change_class = "positive"
+    price_change_sign = "+"
 
-updated_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+# Basic mock for signal
+if delta > 1.0:
+    signal = "STRONG BUY"
+    signal_class = "buy"
+elif delta < -1.0:
+    signal = "SELL"
+    signal_class = "sell"
+else:
+    signal = "HOLD"
+    signal_class = "hold"
 
 st.markdown(
-    f"""<div class='kpi-header'>
-            <div class='kpi-card'><h3>{selected_ticker}</h3></div>
-            <div class='kpi-card'><h3>₹ {last_price:.2f}</h3><p>Daily Δ {delta:+.2f}%</p></div>
-            <div class='kpi-card badge-card'><span>Date Range:</span><strong>{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}</strong></div>
-            <div class='kpi-card badge-card'><span>Last Refresh:</span><strong>{updated_time}</strong></div>
-        </div>""",
+    f"""
+    <div class="mockup-header">
+        <div class="header-left">
+            <h1>{selected_ticker.replace('.NS', '')} LTD</h1>
+            <div class="tags">
+                <span>NSE: {selected_ticker.replace('.NS', '')}</span>
+                <span style="color: #4B5563;">|</span>
+                <span class="market-open">MARKET OPEN</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-price">
+                <span class="label">LAST PRICE</span>
+                <span class="value">₹{last_price:,.2f}</span>
+                <span class="change {price_change_class}">{price_change_sign}{delta:.2f}% (Today)</span>
+            </div>
+            <div class="header-signal">
+                <span class="label">INVESTMENT SIGNAL</span>
+                <span class="signal-box {signal_class}">{signal}</span>
+            </div>
+        </div>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 
@@ -171,35 +196,41 @@ with st.spinner("Fetching portfolio data for optimization..."):
 # -----------------
 # Main Content Area
 # -----------------
-st.markdown(f"<h1 class='page-title'>{selected_ticker} Risk Analytics</h1>", unsafe_allow_html=True)
-st.markdown(f"<p class='page-subtitle'>A unified risk analytics experience across forecasting, valuation, portfolio, and stress-testing modules.</p>", unsafe_allow_html=True)
-st.markdown("<div class='section-divider'></div>", unsafe_allow_html=True)
 
-# Dispatch modules inside top tabs after data is ready
-tabs = st.tabs(list(MODULES.keys()))
-for label, tab in zip(MODULES.keys(), tabs):
-    with tab:
-        module_key = MODULES[label]
-        if module_key == "summary":
-            render_module_1(df, selected_ticker, port_returns)
-        elif module_key == "arima":
-            render_module_2(df)
-        elif module_key == "garch":
-            render_module_3(df)
-        elif module_key == "dcf":
-            render_module_4(selected_ticker)
-        elif module_key == "monte_carlo":
-            render_module_5(df)
-        elif module_key == "var":
-            render_module_6(df)
-        elif module_key == "credit_risk":
-            render_module_7(selected_ticker)
-        elif module_key == "portfolio":
-            render_module_8(port_returns)
-        elif module_key == "stress":
-            render_module_9(port_returns)
-        elif module_key == "correlation":
-            render_module_10(port_returns)
+# Continuous Grid Layout
+st.markdown("<div id='summary'></div>", unsafe_allow_html=True)
+render_module_1(df, selected_ticker, port_returns)
+
+st.markdown("<br><div id='arima'></div><div id='garch'></div>", unsafe_allow_html=True)
+col1, col2 = st.columns(2)
+with col1:
+    render_module_2(df)
+with col2:
+    render_module_3(df)
+
+st.markdown("<br><div id='dcf'></div>", unsafe_allow_html=True)
+render_module_4(selected_ticker)
+
+st.markdown("<br><div id='monte_carlo'></div><div id='var'></div>", unsafe_allow_html=True)
+col3, col4 = st.columns(2)
+with col3:
+    render_module_5(df)
+with col4:
+    render_module_6(df)
+
+st.markdown("<br><div id='credit_risk'></div><div id='portfolio'></div>", unsafe_allow_html=True)
+col5, col6 = st.columns(2)
+with col5:
+    render_module_7(selected_ticker)
+with col6:
+    render_module_8(port_returns)
+
+st.markdown("<br><div id='stress'></div><div id='correlation'></div>", unsafe_allow_html=True)
+col7, col8 = st.columns(2)
+with col7:
+    render_module_9(port_returns)
+with col8:
+    render_module_10(port_returns)
 
 
 st.markdown("---")

@@ -132,7 +132,13 @@ def render_module_2(df):
     Args:
         df (pd.DataFrame): DataFrame containing stock price data with at least 'Close' and 'Log_Return' columns.
     """
-    st.subheader("Module 2: ARIMA Forecasting")
+    st.markdown("""
+    <div class="module-container">
+        <div class="module-header-container">
+            <h2 class="module-header-title">MODULE 2: ARIMA FORECASTING</h2>
+            <span class="module-badge blue">ARIMA</span>
+        </div>
+    """, unsafe_allow_html=True)
     
     if len(df) < 100:
         st.warning("Not enough data to run ARIMA. Need at least 100 days.")
@@ -172,3 +178,5 @@ def render_module_2(df):
     wf_cols = st.columns(2)
     wf_cols[0].metric("In-Sample RMSE (80% Train)", f"{in_rmse:.2f}")
     wf_cols[1].metric("Out-of-Sample RMSE (20% Test)", f"{out_rmse:.2f}")
+    
+    st.markdown("</div>", unsafe_allow_html=True)

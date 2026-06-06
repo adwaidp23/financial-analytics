@@ -105,7 +105,12 @@ def render_module_8(returns_df):
     Args:
         returns_df (pd.DataFrame): DataFrame containing daily log returns of the portfolio assets.
     """
-    st.subheader("Module 8: Portfolio Optimization")
+    st.markdown("""
+    <div class="module-container">
+        <div class="module-header-container">
+            <h2 class="module-header-title">MODULE 8: PORTFOLIO OPTIMIZATION</h2>
+        </div>
+    """, unsafe_allow_html=True)
     
     if returns_df.empty:
         st.warning("Insufficient data.")
@@ -114,10 +119,12 @@ def render_module_8(returns_df):
     # Interactive Toggle for assets
     st.markdown("##### Toggle Assets in Portfolio")
     selected_assets = []
-    cols = st.columns(len(returns_df.columns))
+    num_cols = 3
+    cols = st.columns(num_cols)
     for i, col in enumerate(returns_df.columns):
-        # We handle layout dynamically
-        if cols[i % len(cols)].checkbox(col, value=True, key=f"mod8_{col}"):
+        # We handle layout dynamically across a fixed number of columns to avoid squishing
+        display_label = col.replace('.NS', '')
+        if cols[i % num_cols].checkbox(display_label, value=True, key=f"mod8_{col}"):
             selected_assets.append(col)
             
     if len(selected_assets) < 2:
@@ -158,19 +165,55 @@ def render_module_8(returns_df):
         name='Max Sharpe Portfolio'
     ))
     
+    fig.update_layout(
+        legend=dict(
+            yanchor="top",
+            y=0.95,
+            xanchor="left",
+            x=0.05,
+            bgcolor="rgba(0,0,0,0.5)",
+            bordercolor="#2A2E39",
+            borderwidth=1,
+            font=dict(size=11, color="#D1D5DB")
+        ),
+        margin=dict(l=0, r=0, t=30, b=0)
+    )
     apply_theme(fig)
-    st.plotly_chart(fig, width='stretch')
+    st.plotly_chart(fig, use_container_width=True)
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        pie_fig = go.Figure(data=[go.Pie(labels=selected_assets, values=opt_w, hole=.3)])
-        pie_fig.update_layout(title="Optimal Portfolio Allocation", height=400)
+        pie_fig = go.Figure(data=[go.Pie(
+            labels=selected_assets, 
+            values=opt_w, 
+            hole=.4,
+            textinfo='label+percent',
+            textposition='inside',
+            marker=dict(line=dict(color='#1E222D', width=2))
+        )])
+        pie_fig.update_layout(
+            title=dict(text="OPTIMAL ALLOCATION", font=dict(size=13, color="#9CA3AF")),
+            height=300,
+            margin=dict(l=0, r=0, t=40, b=0),
+            showlegend=True,
+            legend=dict(
+                orientation="v",
+                yanchor="middle",
+                y=0.5,
+                xanchor="left",
+                x=1.05,
+                font=dict(size=11, color="#D1D5DB"),
+                bgcolor="rgba(0,0,0,0)"
+            )
+        )
         apply_theme(pie_fig)
-        st.plotly_chart(pie_fig, width='stretch')
+        st.plotly_chart(pie_fig, use_container_width=True)
         
     with col2:
         st.markdown("<br><br>**Max Sharpe Portfolio Metrics**", unsafe_allow_html=True)
         st.metric("Expected Return", f"{opt_ret*100:.2f}%")
         st.metric("Portfolio Volatility", f"{opt_vol*100:.2f}%")
         st.metric("Sharpe Ratio", f"{opt_sharpe:.2f}")
+
+    st.markdown("</div>", unsafe_allow_html=True)

@@ -64,7 +64,13 @@ def render_module_3(df):
     Args:
         df (pd.DataFrame): DataFrame containing stock price data with at least 'Log_Return' and 'Rolling_Vol' columns.
     """
-    st.subheader("Module 3: GARCH Volatility Modeling")
+    st.markdown("""
+    <div class="module-container">
+        <div class="module-header-container">
+            <h2 class="module-header-title">MODULE 3: GARCH VOLATILITY</h2>
+            <span class="module-badge red">HIGH REGIME</span>
+        </div>
+    """, unsafe_allow_html=True)
     
     if len(df) < 100:
         st.warning("Not enough data to run GARCH.")
@@ -130,4 +136,6 @@ def render_module_3(df):
         f"<span style='color:{status_color}; font-weight:bold; font-size:16px;'>({status_symbol})</span>", 
         unsafe_allow_html=True
     )
+    
+    st.markdown("</div>", unsafe_allow_html=True)
 
