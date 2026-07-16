@@ -1,20 +1,19 @@
-# financial-analytics
+# Financial Analytics
 
 ## Project Overview
-This repository contains the `financial-analytics` project, a key component of my Data Science/Analytics portfolio.
+Interactive Streamlit dashboard for financial risk analytics, forecasting, volatility modeling, VaR/CVaR, portfolio optimization, Monte Carlo simulations, DCF valuation, and stress testing.
+
+This repository is a part of my Data Analyst/Data Scientist portfolio. It demonstrates my ability to handle complex data, build robust models, and derive actionable insights.
 
 ## Features
 - End-to-end data processing pipeline
-- Interactive analytics
-- State-of-the-art modeling
+- Exploratory Data Analysis (EDA)
+- Robust modeling and predictive analytics
 
 ## Tech Stack
-- Python
-- Pandas, NumPy, Scikit-learn
-- Jupyter Notebooks
-
-## Architecture
-Data is ingested from source, cleaned, and processed through robust ML pipelines.
+- **Languages:** Python / SQL
+- **Libraries:** Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn
+- **Tools:** Jupyter Notebooks, Git
 
 ## Installation
 ```bash
@@ -25,11 +24,6 @@ pip install -r requirements.txt
 
 ## Usage
 Run the main scripts or Jupyter notebooks to see the analysis in action.
-
-## Project Structure
-- `src/` - Source code
-- `data/` - Dataset samples
-- `notebooks/` - Jupyter notebooks for exploratory analysis
 
 ## License
 MIT License
